@@ -7,7 +7,6 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 RUN apt-get install --yes autoconf \
  && apt-get install --yes build-essential \
  && apt-get install --yes curl \
- && apt-get install --yes erlang-dev \
  && apt-get install --yes fop \
  && apt-get install --yes git make \
  && apt-get install --yes libgl1-mesa-dev \
@@ -34,7 +33,7 @@ RUN git clone https://github.com/asdf-vm/asdf.git /var/opt/asdf --branch v0.4.3 
  && /var/opt/asdf/bin/asdf global erlang 21.0 \
  && /var/opt/asdf/bin/asdf global elixir 1.8.1
 
-ENV PATH="${PATH}:/var/opt/asdf/shims"
+ENV PATH="/var/opt/asdf/shims:${PATH}"
 
 RUN apt-get install --yes locales \
  && echo "en_US.UTF-8 UTF-8" >/etc/locale.gen \
