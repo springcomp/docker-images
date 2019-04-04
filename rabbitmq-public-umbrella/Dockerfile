@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
  && apt-get update \
- && apt-get install --yes default-jre openjdk-8-jdk
+ && apt-get install --yes default-jre openjdk-8-jdk python
 
 RUN apt-get install --yes autoconf \
  && apt-get install --yes build-essential \
@@ -18,6 +18,7 @@ RUN apt-get install --yes autoconf \
  && apt-get install --yes libwxgtk3.0-dev \
  && apt-get install --yes libxml2-utils \
  && apt-get install --yes m4 \
+ && apt-get install --yes rsync \
  && apt-get install --yes unixodbc \
  && apt-get install --yes unixodbc-bin \
  && apt-get install --yes unixodbc-dev \
