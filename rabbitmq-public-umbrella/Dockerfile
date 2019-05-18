@@ -1,40 +1,32 @@
-FROM ubuntu:18.04
+FROM elixir:1.8.1
+
+## Install various software dependencies (setting debian non-interactive install mode to prevent warnings)
+## - rsync is required to run "make source-dist" against rabbitmq-server-release source code.
+## - zip is required to run "make -C packaging package-generic-unix ..." in rabbitmq-server-release source folder.
+## - build-essential:native
+## - dh-systemd
+## - python-simplejson
+## - xmlto
+## - xsltproc
+##   ... are required to run "make -C packaging package-deb ..." in rabbitmq-server-release source folder.
 
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
  && apt-get update \
- && apt-get install --yes default-jre openjdk-8-jdk python
+ && apt-get install -y apt-utils dialog \
+ && apt-get install -y rsync zip \
+ && apt-get install -y build-essential:native dh-systemd python-simplejson \
+ && apt-get install -y xmlto xsltproc 
 
-RUN apt-get install --yes autoconf \
- && apt-get install --yes build-essential \
- && apt-get install --yes curl \
- && apt-get install --yes fop \
- && apt-get install --yes git make \
- && apt-get install --yes libgl1-mesa-dev \
- && apt-get install --yes libglu1-mesa-dev \
- && apt-get install --yes libncurses5-dev \
- && apt-get install --yes libpng-dev \
- && apt-get install --yes libreadline-dev \
- && apt-get install --yes libssl-dev \
- && apt-get install --yes libwxgtk3.0-dev \
- && apt-get install --yes libxml2-utils \
- && apt-get install --yes m4 \
- && apt-get install --yes rsync \
- && apt-get install --yes unixodbc \
- && apt-get install --yes unixodbc-bin \
- && apt-get install --yes unixodbc-dev \
- && apt-get install --yes wx-common \
- && apt-get install --yes xsltproc \
- && apt-get install --yes zlib1g-dev
+## Install various erlang-related software dependencies
+## - first, setup new apt-get sources and corresponding GPG signatures for rabbitmq and erlang-related packages
+## - then install required software dependencies
 
-RUN git clone https://github.com/asdf-vm/asdf.git /var/opt/asdf --branch v0.4.3 \
- && /var/opt/asdf/bin/asdf plugin-add elixir \
- && /var/opt/asdf/bin/asdf plugin-add erlang \
- && /var/opt/asdf/bin/asdf install erlang 21.0 \
- && /var/opt/asdf/bin/asdf install elixir 1.8.1 \
- && /var/opt/asdf/bin/asdf global erlang 21.0 \
- && /var/opt/asdf/bin/asdf global elixir 1.8.1
-
-ENV PATH="/var/opt/asdf/shims:${PATH}"
+RUN echo 'deb http://binaries.erlang-solutions.com/debian precise contrib' | tee -a /etc/apt/sources.list \
+&& echo 'deb http://dl.bintray.com/rabbitmq/debian stretch erlang-21.x' | tee -a /etc/apt/sources.list \
+&& wget -O - http://binaries.erlang-solutions.com/debian/erlang_solutions.asc | apt-key add -  \
+&& wget -O - 'https://dl.bintray.com/rabbitmq/Keys/rabbitmq-release-signing-key.asc' | apt-key add - \
+&& apt-get update \
+&& apt-get install -y erlang-nox erlang-dev erlang-src
 
 RUN apt-get install --yes locales \
  && echo "en_US.UTF-8 UTF-8" >/etc/locale.gen \
